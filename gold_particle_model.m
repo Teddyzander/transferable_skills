@@ -27,9 +27,11 @@ rho_s = (rho_SC+rho_VE)/2; % average density for one skin system
 sig_s = (sig_SC + sig_VE)/2; % average yield constant for one skin system
 m = rho_g * A; % mass of the particle
 
+%% create the function to model the change in velocity
 % define acceleration as function of velocity
 a = @(v) (1/m) * (-0.5 * c_D * rho_s * A * v^2 - c * A * sig_s);
 
+% define step size and preallocate vectors to hold calculated values
 steps = [1:1:10000000];
 factor = 1/1000000;
 velocity = zeros(length(steps), 1);
@@ -37,14 +39,20 @@ pos = zeros(length(steps), 1);
 velocity(1) = v_0;
 pos(1) = 0;
 
+%% run a simulation
+% use the velocity equation to estimate the velocity at each time step
+% then use the velocty to estimate the position of the particle
 for i=2:length(steps)
     change = a(velocity(i-1));
     velocity(i) = velocity(i-1) + change * factor;
     pos(i) = pos(i - 1) + (velocity(i-1)+ velocity(i))/2 * factor;
 end
 
+%% plot the data
+% velocity profile through time
 figure(1)
 plot(steps, velocity);
+% position of the particle through time
 figure(2)
 plot(steps, pos);
     
