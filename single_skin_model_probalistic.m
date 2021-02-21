@@ -1,3 +1,6 @@
+% script simulates a simple probabilistic model of a particle
+% penetrating a single layered model of skin
+
 %% define all parameters
 N = 10000 %how many simulations we want
 depth_L = 10; % depth of the Langerhan cells from dermis
