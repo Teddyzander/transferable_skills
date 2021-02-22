@@ -59,11 +59,15 @@ time = [0:step_size:1];
 speed = zeros(1, length(time));
 speed(1) = v_0;
 dist = zeros(1, length(time));
+stop = 0
 
 for i=2:length(time)
     speed(i) = v(time(i));
     if speed(i) < 0 
         speed(i) = 0;
+        if stop == 0
+            stop = i;
+        end
     end
     dist(i) = dist(i-1) + speed(i-1) * step_size;
 end
@@ -74,7 +78,7 @@ figure(1)
 subplot(1, 2, 1)
 plot(time, speed, '-r')
 title('v(t)')
-xlim([0, 0.05])
+xlim([0, step_size * stop])
 xlabel('time')
 ylabel('velocity')
 
@@ -83,7 +87,7 @@ plot(time, dist, '-r')
 title('numerical x(t)')
 xlabel('time')
 ylabel('depth')
-xlim([0, 0.05])
+xlim([0, step_size * stop])
 
 %% testing some values of time to see strange behaviour
 %{
