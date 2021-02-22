@@ -43,67 +43,56 @@ t_test2 = @(t) (tan(-t/(sqrt(2)*m)*A*gamma + ...
     (c_D * rho_s);
 
 % these should equal v_0
-v(0)
-t_test(0)
-t_test2(0)
+a = v(0);
+b = t_test(0);
+c = t_test2(0);
+if abs(a-v_0) > 0.0000000001 || ...
+    abs(b-v_0) > 0.0000000001 || ...
+    abs(c-v_0) > 0.0000000001
+    disp('bad model')
+    return
+end
 
 %% run the simulation for each step
-time = [0:0.0001:1];
-speed1 = zeros(1, length(time));
-speed2 = zeros(1, length(time));
-speed3 = zeros(1, length(time));
-under0 = zeros(1, length(time));
+step_size = 0.0001;
+time = [0:step_size:1];
+speed = zeros(1, length(time));
+speed(1) = v_0;
+dist = zeros(1, length(time));
 
-for i=1:length(time)
-    speed1(i) = v(time(i));
-    speed2(i) = t_test(time(i));
-    speed3(i) = t_test2(time(i));
-    if speed3(i) < 0 
-        under0(i) = speed3(i);
-    else
-        under0(i) = inf;
+for i=2:length(time)
+    speed(i) = v(time(i));
+    if speed(i) < 0 
+        speed(i) = 0;
     end
+    dist(i) = dist(i-1) + speed(i-1) * step_size;
 end
 
 %% plot results
 
 figure(1)
-subplot(2, 2, 1)
-plot(time, speed1, '-r')
-title('velocity profile for Ruslans integration')
+subplot(1, 2, 1)
+plot(time, speed, '-r')
+title('v(t)')
 xlim([0, 0.05])
 xlabel('time')
 ylabel('velocity')
 
-subplot(2, 2, 2)
-plot(time, speed2, '-b')
-title('bad integration')
+subplot(1, 2, 2)
+plot(time, dist, '-r')
+title('numerical x(t)')
+xlabel('time')
+ylabel('depth')
 xlim([0, 0.05])
-xlabel('time')
-ylabel('velocity')
-
-subplot(2, 2, 3)
-plot(time, speed3, '-k')
-title('Another integration (agrees with ruslan)')
-xlim([0, 0.05])
-xlabel('time')
-ylabel('velocity')
-
-subplot(2, 2, 4)
-plot(time, under0, '-g')
-xlim([0,1])
-ylim([-10, 10])
-title('velocity values that fall below 0')
-xlabel('time')
-ylabel('velocity')
 
 %% testing some values of time to see strange behaviour
+%{
 time(5056:5058)
 testa = (-time(5056:5058)./(sqrt(2)*m)*A*gamma)
 testb = atan((sqrt(c_D)*sqrt(rho_s) * v_0)/(sqrt(2) * sqrt(c) * sqrt(sig_s)))
 
 tan(testa + testb)
-
+%}
 
 
 

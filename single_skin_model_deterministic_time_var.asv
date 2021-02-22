@@ -41,33 +41,56 @@ t_test2 = @(t) (tan(-t/(sqrt(2)*m)*A*gamma + ...
     atan((v_0*c_D*rho_s)/(sqrt(2)*gamma))) * ...
     sqrt(2) * gamma) / ...
     (c_D * rho_s);
+
+% these should equal v_0
+v_0
 v(0)
 t_test(0)
 t_test2(0)
-
-time = [0:0.0001:0.5];
-speed1 = zeros(1, length(time));
-speed2 = zeros(1, length(time));
-speed3 = zeros(1, length(time));
-
-for i=1:length(time)
-    speed1(i) = v(time(i));
-    speed2(i) = t_test(time(i));
-    speed3(i) = t_test2(time(i));
+if (v(0) ~= v_0) || 9t_test(0) ~= v_0 || t_test2(0) ~= v_0
+    disp('bad model')
+    return
 end
 
+%% run the simulation for each step
+step_size = 0.0001;
+time = [0:step_size:1];
+speed = zeros(1, length(time));
+speed(1) = v_0;
+dist = zeros(1, length(time));
+
+for i=2:length(time)
+    speed(i) = v(time(i));
+    if speed(i) < 0 
+        speed(i) = 0;
+    end
+    dist(i) = dist(i-1) + speed(i-1) * step_size;
+end
+
+%% plot results
+
 figure(1)
-subplot(1, 3, 1)
-plot(time, speed1, '-r')
-xlim([0, 
-subplot(1, 3, 2)
-plot(time, speed2, '-b')
+subplot(1, 2, 1)
+plot(time, speed, '-r')
+title('v(t)')
+xlim([0, 0.05])
+xlabel('time')
+ylabel('velocity')
 
-subplot(1, 3, 3)
-plot(time, speed3, '-k')
+subplot(1, 2, 2)
+plot(time, dist, '-r')
+title('numerical x(t)')
+xlabel('time')
+ylabel('depth')
 
+%% testing some values of time to see strange behaviou
+%{
+time(5056:5058)
+testa = (-time(5056:5058)./(sqrt(2)*m)*A*gamma)
+testb = atan((sqrt(c_D)*sqrt(rho_s) * v_0)/(sqrt(2) * sqrt(c) * sqrt(sig_s)))
 
-
+tan(testa + testb)
+%}
 
 
 
