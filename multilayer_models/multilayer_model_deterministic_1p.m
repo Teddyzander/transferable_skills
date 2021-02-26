@@ -28,20 +28,14 @@ good_depth_lower = depth_SC+depth_VE-depth_L - r_LC/2;
 % preallocate memory for matrices
 time = [0:step_size:0.6];
 x = zeros(1, length(time));
-layer2 = 0; % flag to check velocity on first entry into layer 2
-v_1 = -999999; % bad number for entry velocity into layer 2 (bug checking)
 
 for i=2:length(time)
     % check if we are in layer 2
     if x(i-1) >= depth_SC/100
-        % check if this is first entry into layer 2
-        if layer2 == 0
-            % this is our first entry, so get velocity at this point
-            layer2 = 1;
-            v_1 = vel(time(i-1), v_0, rho_g, r, sigma_y, rho_s, c_D, c);
-        end
-        % calculate depth in layer 2 using layer 2 parameters
-        x(i) = depth(time(i), v_1, rho_g, r, sig_SC, rho_SC, c_D, c, ang);
+         % this is our first entry, so get velocity at this point
+         layer2 = 1;
+         v_1 = vel(time(i-1), v_0, rho_g, r, sig_VE, rho_VE, c_D, c);
+         d = max_depth(v_1, rho_g, r, sig_SC, rho_SC, c_D, c, ang);
     else
         % in layer 1, so use layer 1 parameters
         x(i) = depth(time(i), v_0, rho_g, r, sig_VE, rho_VE, c_D, c, ang);

@@ -1,0 +1,77 @@
+format long
+
+%% define all parameters
+N = 1; %how many simulations we want
+step_size = 0.00001;
+depth_L = 10; % depth of the Langerhan cells 
+r_LC = 4; % radius of Langerhan cells 
+depth_SC = 20 + (30 - 20) * rand(1, N); % thickness of stratum corneum 
+depth_VE = 50 + (100 - 50) * rand(1, N); % thickness of viable epidermis 
+rho_LC = 1000; % 1000 Langherhan cells per mm
+rho_SC = 1500; % density of stratum corneum kg/m^3
+rho_VE = 1200; % density of viable epidermis kg/m^3
+sig_SC = 2 + (25 - 2) * rand(1, N); % average yield stress for stratum corneum in MPA
+sig_VE = 2; % yield stress for viable epidermis in MPA
+mu = 0.89; % water viscosity in micropascals per second
+ymod_SC = 4; % youngs modulus of stratum corneum in gigapascals
+ymod_VE = 3; % youngs modulus of viable epidermis in gigapascals
+v_0 = 400 + (600-400) * rand(1, N); % typical entry velocity of particle
+ang = cos(-0.01 + (0.01 + 0.01) * rand(1, N)); % angle of entry 
+r = 0.5 + (2.5 - 0.5) * rand(1, N); % typical particle radius
+rho_g = 19.32; % density of gold kg/m^3
+c_D = 0.5; % drag coeffecient
+c = 3; % yield constant
+
+% depths for the cells we want to hit
+good_depth_upper = depth_SC+depth_VE-depth_L + r_LC/2;
+good_depth_lower = depth_SC+depth_VE-depth_L - r_LC/2;
+
+% preallocate memory for matrices
+time = [0:step_size:1];
+x = zeros(N, length(time));
+layer2 = 0; % flag to check velocity on first entry into layer 2
+v_1 = -999999; % bad number for entry velocity into layer 2 (bug checking)
+
+for i=1:N
+    for j=2:length(time)
+        % check if we are in layer 2
+        if x(i, j-1) >= depth_SC(i)/100
+            % check if this is first entry into layer 2
+            if layer2 == 0
+                % this is our first entry, so get velocity at this point
+                layer2 = 1;
+                v_1 = vel(time(j-1), v_0(i), rho_g, r(i), ...
+                    sig_SC(i), rho_SC, c_D, c);
+                max_depth = x(i, j-1) + ... 
+                    max_depth(v_1, rho_p, r, sigma_y, rho_s, c_D, c, ang)
+                e_step = j - 1;
+                d = x(i, j-1);
+            end
+            % calculate max depth in layer 2 using layer 2 parameters
+            x(i, j) = d + depth(time(j - e_step), v_1, rho_g, r(i), ...
+                sig_SC(i), rho_SC, c_D, c, ang(i));
+        else
+            % in layer 1, so use layer 1 parameters
+            x(i, j) = depth(time(j), v_0(i), rho_g, r(i), ...
+                sig_VE, rho_VE, c_D, c, ang(i));
+        end
+    end
+    layer2 = 0;
+end
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
