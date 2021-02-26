@@ -1,7 +1,5 @@
-format long
-
 %% define all parameters
-step_size = 0.00001;
+step_size = 0.000001;
 depth_L = 10; % depth of the Langerhan cells 
 r_LC = 4; % radius of Langerhan cells 
 depth_SC = ((20+30)/2); % thickness of stratum corneum 
@@ -26,21 +24,41 @@ good_depth_upper = depth_SC+depth_VE-depth_L + r_LC/2;
 good_depth_lower = depth_SC+depth_VE-depth_L - r_LC/2;
 
 % preallocate memory for matrices
-time = [0:step_size:0.6];
+time = [0:step_size:1.5];
 x = zeros(1, length(time));
+pend = 0;
+layer2 = 0;
 
 for i=2:length(time)
     % check if we are in layer 2
     if x(i-1) >= depth_SC/100
          % this is our first entry, so get velocity at this point
-         layer2 = 1;
-         v_1 = vel(time(i-1), v_0, rho_g, r, sig_VE, rho_VE, c_D, c);
-         d = max_depth(v_1, rho_g, r, sig_SC, rho_SC, c_D, c, ang);
+         if layer2 == 0
+            pend = x(i-1);
+            layer2 = 1;
+            v_1 = vel(time(i-1), v_0, rho_g, r, sig_SC, rho_SC, c_D, c);
+            d = pend + max_depth(v_1, rho_g, r, sig_VE, rho_VE, c_D, c, ang);
+         end
+         d_1 = pend + depth(time(i), v_1, rho_g, r, sig_VE, rho_VE, c_D, c, ang);
+         if d_1 < x(i-1)
+             x(i) = x(i-1);
+         else
+             x(i) = d_1;
+         end
     else
         % in layer 1, so use layer 1 parameters
-        x(i) = depth(time(i), v_0, rho_g, r, sig_VE, rho_VE, c_D, c, ang);
+        x(i) = depth(time(i), v_0, rho_g, r, sig_SC, rho_SC, c_D, c, ang);
     end
 end
+
+plot(time, x, '-b')
+hold on
+plotter = ones(1, length(time)) * d;
+plot(time, plotter, '--r')
+title('depth of particle')
+xlabel('time')
+ylabel('depth')
+legend('x(t)', 'max depth function', 'Location', 'southeast')
     
     
     
