@@ -12,9 +12,9 @@ sig_VE = 2; % yield stress for viable epidermis in MPA
 mu = 0.89; % water viscosity in micropascals per second
 ymod_SC = 4; % youngs modulus of stratum corneum in gigapascals
 ymod_VE = 3; % youngs modulus of viable epidermis in gigapascals
-v_0 = (400+600)/2; % typical entry velocity of particle
+v_0 = 500; % typical entry velocity of particle
 ang = cos(0); % angle of entry 
-r = (0.5+2.5)/2; % typical particle radius
+r = 1.8; % typical particle radius
 rho_g = 19.32; % density of gold kg/m^3
 c_D = 0.5; % drag coeffecient
 c = 3; % yield constant
@@ -34,12 +34,13 @@ for i=2:length(time)
     if x(i-1) >= depth_SC/100
          % this is our first entry, so get velocity at this point
          if layer2 == 0
+            t=i-1;
             pend = x(i-1);
             layer2 = 1;
             v_1 = vel(time(i-1), v_0, rho_g, r, sig_SC, rho_SC, c_D, c);
             d = pend + max_depth(v_1, rho_g, r, sig_VE, rho_VE, c_D, c, ang);
          end
-         d_1 = pend + depth(time(i), v_1, rho_g, r, sig_VE, rho_VE, c_D, c, ang);
+         d_1 = pend + depth(time(i-t), v_1, rho_g, r, sig_VE, rho_VE, c_D, c, ang);
          if d_1 < x(i-1)
              x(i) = x(i-1);
          else
@@ -48,17 +49,23 @@ for i=2:length(time)
     else
         % in layer 1, so use layer 1 parameters
         x(i) = depth(time(i), v_0, rho_g, r, sig_SC, rho_SC, c_D, c, ang);
+        if x(i) < x(i-1)
+             x(i) = x(i-1);
+             d = max_depth(v_0, rho_g, r, sig_SC, rho_SC, c_D, c, ang);
+        end
     end
 end
 
+hold on
 plot(time, x, '-b')
 hold on
 plotter = ones(1, length(time)) * d;
 plot(time, plotter, '--r')
-title('depth of particle')
+title('depth of particle for different initial velocity')
 xlabel('time')
-ylabel('depth')
+ylabel('depth in um')
 legend('x(t)', 'max depth function', 'Location', 'southeast')
+ylim([0,1.5])
     
     
     
