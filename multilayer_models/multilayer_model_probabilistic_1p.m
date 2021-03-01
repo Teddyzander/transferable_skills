@@ -15,7 +15,7 @@ ymod_SC = 4; % youngs modulus of stratum corneum in gigapascals
 ymod_VE = 3; % youngs modulus of viable epidermis in gigapascals
 v_0 = normrnd(500,51,[1,N]); % typical entry velocity of particle
 ang = cos(normrnd(0,0.01,[1,N])); % angle of entry 
-r = normrnd(1.5,0.5,[1,N]); % normally distributed radius for particles
+r = normrnd(1.9,0.5,[1,N]); % normally distributed radius for particles
 rho_g = 19.32; % density of gold kg/m^3
 c_D = 0.5; % drag coeffecient
 c = 3; % yield constant
@@ -23,10 +23,10 @@ c = 3; % yield constant
 % fix the parameters that are distributed to a range
 for j=1:N
    % check radius
-    if r(j) > 2.5
-        r(j) = 2.5;
-    elseif r(j) < 0.5
-        r(j) = 0.5;
+    if r(j) > 2.9
+        r(j) = 2.9;
+    elseif r(j) < 0.9
+        r(j) = 0.9;
     end
     % check entry velocity
     if v_0(j) > 600
@@ -91,14 +91,21 @@ for j=1:N
 end
 
 %% plotting routine
-str = 'Particle depth for normally distributed variables (good= ' + string(good/N*100) + '%)';
+figure(1)
+str = 'Particle depth for normally distributed variables, mean r = 1.9$, (good=' + string(good/N*100) + '%)';
 plot([1:N], d, '.')
+hold on 
+plot([1:N], ones(1, N) * (25 + 75 - 10)/100, '-r')
+plot([1:N], ones(1, N) * (25 + 75 - 10 + 13 + 2.6)/100, '-g')
+plot([1:N], ones(1, N) * (25 + 75 - 10 - 13 - 2.6)/100, '-g')
+
 xlabel('particle number')
 ylabel('depth in um')
-legend('Particle', 'Depth of LC cells')
-title(str)
+legend('Particle', '$\mu$ of LC cell depth', '$\sigma$ of LC depth', ...
+    'interpreter','latex')
+title('Particle depth for normally distributed variables, mean r = 2, (good=' + string(good/N*100) + '%)')
 ylim([0, 1.5])
-    
+
     
     
     
