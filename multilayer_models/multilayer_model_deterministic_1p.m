@@ -14,7 +14,7 @@ ymod_SC = 4; % youngs modulus of stratum corneum in gigapascals
 ymod_VE = 3; % youngs modulus of viable epidermis in gigapascals
 v_0 = 600; % typical entry velocity of particle
 ang = cos(0); % angle of entry 
-r = 2.4074003; % typical particle radius
+r = 1.5; % typical particle radius
 rho_g = 19.32; % density of gold kg/m^3
 c_D = 0.5; % drag coeffecient
 c = 3; % yield constant
@@ -29,52 +29,67 @@ x = zeros(1, length(time));
 pend = 0;
 layer2 = 0;
 
-for i=2:length(time)
-    % check if we are in layer 2
-    if x(i-1) >= depth_SC/100
-         % this is our first entry, so get velocity at this point
-         if layer2 == 0
-            t=i-1;
-            pend = x(i-1);
-            layer2 = 1;
-            v_1 = vel(time(i-1), v_0, rho_g, r, sig_SC, rho_SC, c_D, c);
-            d = pend + max_depth(v_1, rho_g, r, sig_VE, rho_VE, c_D, c, ang);
-         end
-         d_1 = pend + depth(time(i-t), v_1, rho_g, r, sig_VE, rho_VE, c_D, c, ang);
-         if d_1 < x(i-1)
-             x(i) = x(i-1);
-         else
-             x(i) = d_1;
-         end
-    else
-        % in layer 1, so use layer 1 parameters
-        x(i) = depth(time(i), v_0, rho_g, r, sig_SC, rho_SC, c_D, c, ang);
-        if x(i) < x(i-1)
-             x(i) = x(i-1);
-             d = max_depth(v_0, rho_g, r, sig_SC, rho_SC, c_D, c, ang);
+for j=1:3
+    for i=2:length(time)
+        % check if we are in layer 2
+        if x(i-1) >= depth_SC/100
+             % this is our first entry, so get velocity at this point
+             if layer2 == 0
+                t=i-1;
+                pend = x(i-1);
+                layer2 = 1;
+                v_1 = vel(time(i-1), v_0, rho_g, r, sig_SC, rho_SC, c_D, c);
+                d = pend + max_depth(v_1, rho_g, r, sig_VE, rho_VE, c_D, c, ang);
+             end
+             d_1 = pend + depth(time(i-t), v_1, rho_g, r, sig_VE, rho_VE, c_D, c, ang);
+             if d_1 < x(i-1)
+                 x(i) = x(i-1);
+             else
+                 x(i) = d_1;
+             end
+        else
+            % in layer 1, so use layer 1 parameters
+            x(i) = depth(time(i), v_0, rho_g, r, sig_SC, rho_SC, c_D, c, ang);
+            if x(i) < x(i-1)
+                 x(i) = x(i-1);
+                 d = max_depth(v_0, rho_g, r, sig_SC, rho_SC, c_D, c, ang);
+            end
         end
     end
 end
-%{
+d3 = d;
+x3 = x;
+
+%%
+
 hold on
-plot(time, x, '-b')
+test1 = plot(time, x1, '-b')
+test2 = plot(time, x2, '-g')
+test3 = plot(time, x3, '-k')
 hold on
-plotter = ones(1, length(time)) * d;
+plotter1 = ones(1, length(time)) * d1;
+plotter2 = ones(1, length(time)) * d2;
+plotter3 = ones(1, length(time)) * d3;
 depth1 = ones(1, length(time)) * good_depth_upper/100;
 depth2 = ones(1, length(time)) * good_depth_lower/100;
-plot(time, plotter, '--r')
+plot(time, plotter1, '--r')
+plot(time, plotter2, '--r')
+plot(time, plotter3, '--r')
 hold on
-plot(time, depth1, '-g')
-hold on
-plot(time, depth2, '-g')
-title('depth of particle for different initial velocity')
+title('depth of particle for different radius')
 xlabel('time')
 ylabel('depth in um')
-legend('x(t)', 'max depth function', 'Location', 'southeast')
 ylim([0,1.5])
-%}
-good_depth_upper/100 - d
-    
+
+%%
+grid on
+legend([test1, test2, test3], '$v_0 = 400$', '$v_0 = 500$', '$v_0 = 600$','interpreter','latex','FontSize',10);
+title('Depth in the skin where a particle comes to rest','interpreter','latex','FontSize',12)
+xlabel('Time, $t$','interpreter','latex','FontSize',12,'FontWeight', 'bold')
+ylabel('Depth of the skin, $\mu{m}$','interpreter','latex','FontSize',12,'FontWeight', 'bold')
+
+%xlabel('Sparsity $k/n$','interpreter','latex','FontSize',12,'FontWeight', 'bold')
+%ylabel('Number of equations $m/n$','interpreter','latex','FontSize',12,'FontWeight', 'bold')
     
     
     
