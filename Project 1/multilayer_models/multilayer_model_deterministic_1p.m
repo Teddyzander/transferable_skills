@@ -12,9 +12,9 @@ sig_VE = 2; % yield stress for viable epidermis in MPA
 mu = 0.89; % water viscosity in micropascals per second
 ymod_SC = 4; % youngs modulus of stratum corneum in gigapascals
 ymod_VE = 3; % youngs modulus of viable epidermis in gigapascals
-v_0 = 600; % typical entry velocity of particle
+v_0 = 500; % typical entry velocity of particle
 ang = cos(0); % angle of entry 
-r = 1.5; % typical particle radius
+r = 1.8; % typical particle radius
 rho_g = 19.32; % density of gold kg/m^3
 c_D = 0.5; % drag coeffecient
 c = 3; % yield constant
@@ -57,28 +57,33 @@ for j=1:3
         end
     end
 end
-
-d3 = d
+d3 = d;
+x3 = x;
 
 %%
 
 hold on
-test = plot(time, x, '-b')
+test1 = plot(time, x1*100, '-b')
+test2 = plot(time, x2*100, '-g')
+test3 = plot(time, x3*100, '-k')
 hold on
-plotter = ones(1, length(time)) * d;
+plotter1 = ones(1, length(time)) * d1;
+plotter2 = ones(1, length(time)) * d2;
+plotter3 = ones(1, length(time)) * d3;
 depth1 = ones(1, length(time)) * good_depth_upper/100;
 depth2 = ones(1, length(time)) * good_depth_lower/100;
-plot(time, plotter, '--r')
+plot(time, plotter1*100, '--r')
+plot(time, plotter2*100, '--r')
+plot(time, plotter3*100, '--r')
 hold on
 title('depth of particle for different radius')
 xlabel('time')
 ylabel('depth in um')
-legend('x(t)', 'max depth function', 'Location', 'southeast')
-ylim([0,1.5])
+ylim([0,150])
 
 %%
 grid on
-legend([test], '$R = 1.2$', '$R = 1.5$', '$R = 1.8$','interpreter','latex','FontSize',10);
+legend([test1, test2, test3], '$r = 1.2$', '$r = 1.5$', '$r = 1.8$','interpreter','latex','FontSize',10);
 title('Depth in the skin where a particle comes to rest','interpreter','latex','FontSize',12)
 xlabel('Time, $t$','interpreter','latex','FontSize',12,'FontWeight', 'bold')
 ylabel('Depth of the skin, $\mu{m}$','interpreter','latex','FontSize',12,'FontWeight', 'bold')

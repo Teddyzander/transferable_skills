@@ -15,7 +15,7 @@ ymod_SC = 4; % youngs modulus of stratum corneum in gigapascals
 ymod_VE = 3; % youngs modulus of viable epidermis in gigapascals
 v_0 = normrnd(500,51,[1,N]); % typical entry velocity of particle
 ang = cos(normrnd(0,0.01,[1,N])); % angle of entry 
-r = normrnd(1.9,0.5,[1,N]); % normally distributed radius for particles
+r = normrnd(1.9,0.3,[1,N]); % normally distributed radius for particles
 rho_g = 19.32; % density of gold kg/m^3
 c_D = 0.5; % drag coeffecient
 c = 3; % yield constant
@@ -70,16 +70,15 @@ for j=1:N
     for i=2:length(time)
         % check if we are in layer 2
         if d(j) >= depth_SC(j)/100
-            if r(j) < 0.
-                pause;
-            end
              v_1 = vel(time(i-1), v_0(j), rho_g, r(j), sig_SC(j), rho_SC, c_D, c);
              d(j) = d(j) + max_depth(v_1, rho_g, r(j), sig_VE, rho_VE, c_D, c, ang(j));
-             if d(j) >= good_depth_lower(j)/100 && d(j) <= good_depth_upper(j)/100
+             if d(j) >= good_depth_lower(j)/100
                  good = good + 1;
              elseif d(j) > good_depth_upper(j)/100
                  long = long + 1;
-             elseif d(j) > good_depth_upper(j)/100
+             elseif d(j) < good_depth_lower(j)/100
+                 short = short + 1;
+             end
              break;
         else
             % in layer 1, so use layer 1 parameters
@@ -93,31 +92,43 @@ for j=1:N
     end
 end
 
+% check how many particles landed where
+disp('Particles that landed in the LC zone')
+(good/N*100)
+disp('Particles that landed short of the LC zone')
+short/N*100
+disp('Particles that over shot the LC zone')
+long/N*100
+
 %% plotting routine
 figure(1)
-str = 'Particle depth for normally distributed variables, mean r = 1.9$, (good=' + string(good/N*100) + '%)';
-plot([1:N], d, '.')
+mean = sum(d*100)/N
+sd_d = std(d*100)
+plot([1:N], d*100, '.')
 hold on 
-plot([1:N], ones(1, N) * (25 + 75 - 10)/100, '-r', 'linewidth', 1.2)
-plot([1:N], ones(1, N) * (25 + 75 - 10 + 13 + 2.6)/100, '-g', 'linewidth', 1.5)
-plot([1:N], ones(1, N) * (25 + 75 - 10 - 13 - 2.6)/100, '-g', 'linewidth', 1.5)
+plot([1:N], ones(1, N) * (25 + 75 - 10), '-r', 'linewidth', 2)
+plot([1:N], ones(1, N) * (25 + 75 - 10 + 13 + 2.6), '-g', 'linewidth', 2)
+plot([1:N], ones(1, N) * mean, '-y', 'linewidth', 2)
+plot([1:N], ones(1, N) * mean+sd_d, '-k', 'linewidth', 2)
+plot([1:N], ones(1, N) * (25 + 75 - 10 - 13 - 2.6), '-g', 'linewidth', 2)
+plot([1:N], ones(1, N) * mean-sd_d, '-k', 'linewidth', 2)
 
-xlabel('particle number')
-ylabel('depth in um')
-legend('Particle', '$\mu$ of LC cell depth', '$\sigma$ of LC depth', ...
-    'interpreter','latex')
-title('Particle depth for normally distributed variables, mean r = 1.5um, (good=' + string(good/N*100) + '%)')
-ylim([0, 1.5])
 
+legend('particle', '$\mu_{LC}$ depth', '$\mu_{LC}\pm\sigma_{LC}$ depth', ... 
+    '$\mu_{particle}$ depth', '$\mu_{particle}\pm\sigma_{particle}$ depth', ...
+    'interpreter','latex','FontSize',10, 'Location', 'southeast');
+title('Depth in the skin where a particle comes to rest ($\mu_r = 1.9, \sigma_r = 0.3$)', ...
+    'interpreter','latex','FontSize',12)
+xlabel('Simulated Particle, $1:N$','interpreter','latex','FontSize',12,'FontWeight', 'bold')
+ylabel('Depth of the skin, $\mu{m}$','interpreter','latex','FontSize',12,'FontWeight', 'bold')
+ylim([0, 150])
     
-    
-    
-    
-    
-    
-    
-    
-    
+%%
+
+logA = @(x) log(x)/log(.846)
+logA(0.05)
+
+8955/0.6107
     
     
     
