@@ -6,7 +6,7 @@ E = 383; % Young's modulus of graphene 381-385
 th = 0.335; % thickness of a graphene membrane
 omega = 500; % frequency in kilohertz
 p_0 = 4 * 10^(-2); % pressure wave amplitude
-L = 20; % length of membrane
+L = 40; % length of membrane
 elements = 100; % splitting up the membrane
 step = 1/100; % step size
 t_length = 0.01*12; % final time
@@ -26,8 +26,7 @@ for j=0:step:t_length
     for i=1:length(d)
         d(i) = w(x(i), j);
     end
-    plot(x, d)
-    hold on
+    
 end
 ylim([-25,25])
 

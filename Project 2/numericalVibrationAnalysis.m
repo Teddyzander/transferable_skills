@@ -13,7 +13,7 @@ t_length = 0.0001*1000; % final time
 p = @(t) p_0*exp(1i*omega*t); %% applied pressure
 
 w_dashdash = @(w1, w2, w3, t, x) 1/rho * ((T/2) * ...
-((w3 - w2) - (w2 - w1) - p(t)));
+((w3 - w2) - (w2 - w1)) - p(t));
 
 %% set up variables for membrane
 % set up variables for  time
@@ -49,6 +49,7 @@ subplot(2, 2, 3)
 plot(mem, mesh_mem_time(round(length(time)*2/3), :))
 subplot(2, 2, 4)
 plot(mem, mesh_mem_time(round(length(time)), :))
+xlim([0, L])
 
 %% plot results for full time
 figure(4)
